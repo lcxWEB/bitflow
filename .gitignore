@@ -202,3 +202,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+bitcoin_prediction/.DS_Store
