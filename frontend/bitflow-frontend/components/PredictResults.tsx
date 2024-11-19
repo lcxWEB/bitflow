@@ -1,29 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
-import { Line } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js';
+import 'react-datepicker/dist/react-datepicker.css';
+import PerformanceCard from './PerformanceCard'; // 确保导入路径正确
 
-// 注册 ChartJS 组件
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 const Container = styled.div`
   background: white;
@@ -58,59 +38,58 @@ const DatePickerContainer = styled.div`
   }
 `;
 
-const ChartContainer = styled.div`
-  margin-bottom: 2rem;
+const PredictButton = styled.button`
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  margin-left: 1rem;
+
+  &:hover {
+    background-color: #0051a2;
+  }
 `;
 
 interface PredictResultsProps {
   selectedModel: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const PredictResults = ({ selectedModel }: PredictResultsProps) => {
-
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [chart1Src, setChart1Src] = useState<string>('../static/plots/price_chart.png');
+  const [chart2Src, setChart2Src] = useState<string>('../../static/plots/mae_chart.png');
+  const [chart3Src, setChart3Src] = useState<string>('../../static/plots/runtime_chart.png');
+  const [chart4Src, setChart4Src] = useState<string>('../../static/plots/mape_chart.png');
 
-//   const [startDate, setStartDate] = useState<Date | null>(null);
-//   const [endDate, setEndDate] = useState<Date | null>(null);
+  const handlePredict = async () => {
+    if (!startDate || !endDate) {
+      alert('Please select both start and end dates.');
+      return;
+    }
 
-  // 模拟数据 - 实际项目中应该从API获取
-  const chartData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [
-      {
-        label: 'Predicted Price',
-        data: [65000, 68000, 67000, 69000, 71000, 72000],
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1,
-      },
-      {
-        label: 'Actual Price',
-        data: [64500, 67800, 66500, 69200, 70800, 71500],
-        borderColor: 'rgb(255, 99, 132)',
-        tension: 0.1,
-      },
-    ],
-  };
+    try {
+      const response = await fetch(`http://localhost:5050/predict_plot?startDate=${startTimestamp}&endDate=${endTimestamp}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: 'Bitcoin Price Prediction vs Actual',
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: false,
-      },
-    },
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      setChart1Src(data.priceChart);
+      setChart2Src(data.MAEChart);
+      setChart3Src(data.RuntimeChart);
+      setChart4Src(data.MAPEChart);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   };
 
   return (
@@ -143,22 +122,31 @@ const PredictResults = ({ selectedModel }: PredictResultsProps) => {
             placeholderText="End date"
           />
         </div>
+        <PredictButton onClick={handlePredict}>Predict</PredictButton>
       </DatePickerContainer>
 
-      <ChartContainer>
-        <Line data={chartData} options={chartOptions} />
-      </ChartContainer>
-
-      {/* 额外的图表可以在这里添加 */}
       <div>
-        <ul>
-          <li>Chart 1: Trend Line Chart: Visualizes predicted vs. actual prices</li>
-          <li>Chart 2-4:</li>
-          <li>Error Bar Chart: Shows MAE for accuracy comparison</li>
-          <li>Runtime Bar Chart: Displays efficiency of each algorithm</li>
-          <li>Dynamic Error Line Chart: Shows MAPE trends over time</li>
-        </ul>
+        <img src={chart1Src} alt="Chart 1: Trend Line Chart" />
+        <p>Chart 1: Trend Line Chart: Visualizes predicted vs. actual prices</p>
       </div>
+
+      <div>
+        <img src={chart2Src} alt="Chart 2: Error Bar Chart" />
+        <p>Chart 2: Error Bar Chart: Shows MAE for accuracy comparison</p>
+      </div>
+
+      <div>
+        <img src={chart3Src} alt="Chart 3: Runtime Bar Chart" />
+        <p>Chart 3: Runtime Bar Chart: Displays efficiency of each algorithm</p>
+      </div>
+
+      <div>
+        <img src={chart4Src} alt="Chart 4: Dynamic Error Line Chart" />
+        <p>Chart 4: Dynamic Error Line Chart: Shows MAPE trends over time</p>
+      </div>
+
+      {/* <PerformanceCard startDate={startDate} endDate={endDate} /> */}
+
     </Container>
   );
 };
