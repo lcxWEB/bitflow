@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import styled from 'styled-components';
 import ProjectDescription from '../components/ProjectDescription';
-import PredictResults from '../components/PredictResults';
-import PerformanceCard from '../components/PerformanceCard';
+import PredictPerformance from '../components/PredictPerformance';
 
 const PageContainer = styled.div`
   padding: 2rem;
@@ -11,20 +9,12 @@ const PageContainer = styled.div`
 `;
 
 const ContentLayout = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 2rem;
-  margin-top: 2rem;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+  width: 100%;
+  max-width: 1200px;
+  margin: 2rem auto 0;
 `;
 
-const PredictionPage = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedModel, setSelectedModel] = useState('LSTM');
-  
+const PredictionPage = () => {  
   const projectData = {
     name: 'Bitcoin Price Prediction',
     group: '16',
@@ -36,20 +26,11 @@ const PredictionPage = () => {
     members: ['Chunxia Li', 'Xingqiao Man', 'Kai Wang', 'Yifan She', 'Zhifeng Qi'],
   };
 
-  const performanceData = {
-    model: 'LSTM',
-    overallScore: 64.5,
-    mae: 500,
-    mape: 1.3,
-    runtime: -0.560,
-  };
-
   return (
     <PageContainer>
       <ProjectDescription data={projectData} />
       <ContentLayout>
-        <PredictResults selectedModel={selectedModel} />
-        <PerformanceCard data={performanceData} />
+        <PredictPerformance />
       </ContentLayout>
     </PageContainer>
   );

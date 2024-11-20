@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import PerformanceCard from './PerformanceCard'; // 确保导入路径正确
 
 
 const Container = styled.div`
@@ -145,7 +144,6 @@ const PredictResults = ({ selectedModel }: PredictResultsProps) => {
         <p>Chart 4: Dynamic Error Line Chart: Shows MAPE trends over time</p>
       </div>
 
-      {/* <PerformanceCard startDate={startDate} endDate={endDate} /> */}
 
     </Container>
   );
