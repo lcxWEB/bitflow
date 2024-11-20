@@ -189,13 +189,17 @@ const FlexContainer = styled.div`
   }
 `;
 
+const ImageContainer = styled.div`
+  margin-bottom: 2rem; /* 增加底部外边距 */
+`;
+
 const PredictPerformance = () => {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  const [chart1Src, setChart1Src] = useState<string>('../static/plots/price_chart.png');
-  const [chart2Src, setChart2Src] = useState<string>('../../static/plots/mae_chart.png');
-  const [chart3Src, setChart3Src] = useState<string>('../../static/plots/runtime_chart.png');
-  const [chart4Src, setChart4Src] = useState<string>('../../static/plots/mape_chart.png');
+  const [chart1Src, setChart1Src] = useState<string>('/static/plots/price_chart.png');
+  const [chart2Src, setChart2Src] = useState<string>('/static/plots/mae_chart.png');
+  const [chart3Src, setChart3Src] = useState<string>('/static/plots/runtime_chart.png');
+  const [chart4Src, setChart4Src] = useState<string>('/static/plots/mape_chart.png');
   const [selectedModel, setSelectedModel] = useState('RandomForest');
   const [data, setData] = useState<any>(null);
 
@@ -314,25 +318,25 @@ const PredictPerformance = () => {
             <PredictButton onClick={handlePredict}>Predict</PredictButton>
           </DatePickerContainer>
 
-          <div>
+          <ImageContainer>
             <img src={chart1Src} alt="Chart 1: Trend Line Chart" />
-            <p>Chart 1: Trend Line Chart: Visualizes predicted vs. actual prices</p>
-          </div>
+            {/* <p>Chart 1: Trend Line Chart: Visualizes predicted vs. actual prices</p> */}
+          </ImageContainer>
 
-          <div>
+          <ImageContainer>
             <img src={chart2Src} alt="Chart 2: Error Bar Chart" />
-            <p>Chart 2: Error Bar Chart: Shows MAE for accuracy comparison</p>
-          </div>
+            {/* <p>Chart 2: Error Bar Chart: Shows MAE for accuracy comparison</p> */}
+          </ImageContainer>
 
-          <div>
+          <ImageContainer>
             <img src={chart3Src} alt="Chart 3: Runtime Bar Chart" />
-            <p>Chart 3: Runtime Bar Chart: Displays efficiency of each algorithm</p>
-          </div>
+            {/* <p>Chart 3: Runtime Bar Chart: Displays efficiency of each algorithm</p> */}
+          </ImageContainer>
 
-          <div>
+          <ImageContainer>
             <img src={chart4Src} alt="Chart 4: Dynamic Error Line Chart" />
-            <p>Chart 4: Dynamic Error Line Chart: Shows MAPE trends over time</p>
-          </div>
+            {/* <p>Chart 4: Dynamic Error Line Chart: Shows MAPE trends over time</p> */}
+          </ImageContainer>
         </div>
         
         <div>
