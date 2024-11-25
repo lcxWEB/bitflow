@@ -51,8 +51,9 @@ import time
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# Define the chart output directory
-PLOTS_DIR = "/frontend/bitflow-frontend/public/static/plots/"
+# Define the chart output directory relative to the current script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PLOTS_DIR = os.path.join(BASE_DIR, "frontend/bitflow-frontend/public/static/plots/")
 os.makedirs(PLOTS_DIR, exist_ok=True)  # Create the directory if it doesn't exist
 
 # Supported algorithms
