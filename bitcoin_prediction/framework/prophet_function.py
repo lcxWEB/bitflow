@@ -11,7 +11,7 @@ import numpy as np
 
 def load_data():
     # read the data
-    df = pd.read_csv('../bitcoin_price_sentiment_addmean.csv')
+    df = pd.read_csv('./bitcoin_price_sentiment_addmean.csv')
     # make sure the date is in datetime format
     df['date'] = pd.to_datetime(df['date'])
     # prepare the dataframe for prophet
