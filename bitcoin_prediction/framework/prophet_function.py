@@ -11,7 +11,10 @@ import numpy as np
 
 def load_data():
     # read the data
-    df = pd.read_csv('./bitcoin_price_sentiment_addmean.csv')
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, "bitcoin_price_sentiment_addmean.csv")
+    df = pd.read_csv(file_path)
+    #df = pd.read_csv('./bitcoin_price_sentiment_addmean.csv')
     # make sure the date is in datetime format
     df['date'] = pd.to_datetime(df['date'])
     # prepare the dataframe for prophet
@@ -35,7 +38,9 @@ def load_data():
 def predict(start_date, end_date):
     train_df, test_df, df, features = load_data()
     start_time = time.time()
-    model_file_path = "prophet_model.pkl"
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    model_file_path = os.path.join(current_dir, "prophet_model.pkl")
+    # model_file_path = "prophet_model.pkl"
     if os.path.exists(model_file_path):
         model = joblib.load(model_file_path)
     else:

@@ -63,10 +63,41 @@ def predict_bitcoin_prices(start_date, end_date):
         return df
     
     try:
+        # 添加项目根目录到 sys.path
+        # current_dir = os.path.dirname(os.path.abspath(__file__))  # 获取 LSTM_function.py 所在目录
+        # project_root = os.path.join(current_dir, '.')  # 获取项目根目录
+        # sys.path.append(project_root)       
+
+        # 现在可以导入 config 内的 model_config
+        #from config.model_config import ModelConfig
         # Load model and setup
-        sys.path.append('./config')
+
+        # 获取当前脚本的绝对路径
+        current_dir = os.path.dirname(os.path.abspath(__file__))        
+
+        # 拼接 config 文件夹的绝对路径
+        config_dir = os.path.join(current_dir, 'config')        
+
+        # 将 config 文件夹添加到 sys.path
+        sys.path.append(config_dir)
+        print("sys.path:", sys.path)
+        #sys.path.append('./config')
         from model_config import ModelConfig
-        model = load_model('./models/lstm_model.keras')
+
+        # 获取当前脚本的绝对路径
+        lstm_current_dir = os.path.dirname(os.path.abspath(__file__))
+
+        # 拼接模型文件的绝对路径
+        lstm_model_path = os.path.join(lstm_current_dir, 'models', 'lstm_model.keras')
+
+        # 检查模型文件是否存在
+        if not os.path.exists(lstm_model_path):
+            raise FileNotFoundError(f"Model file not found at {lstm_model_path}")
+
+        # 加载模型
+        model = load_model(lstm_model_path)
+
+        #model = load_model('./models/lstm_model.keras')
         
         # Fetch and prepare data
         df = fetch_crypto_data(start_date, end_date)
@@ -140,8 +171,11 @@ def predict_bitcoin_prices(start_date, end_date):
         }
         
     except Exception as e:
-        print(f"Error during prediction: {str(e)}")
-        return None
+        return {
+            'error': f"Error during prediction: {str(e)}"
+        }
+        # print(f"Error during prediction: {str(e)}")
+        # return None
 
 # Test code 
 '''

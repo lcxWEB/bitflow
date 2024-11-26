@@ -5,13 +5,25 @@ import time
 from datetime import datetime
 import xgboost as xgb
 import requests
+import os
 from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
 
 # Load the xgboost model
 def load_model():
-    with open('xgboost_model.pkl', 'rb') as file:
+    # 获取当前文件所在目录
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # 拼接模型文件的完整路径
+    model_path = os.path.join(current_dir, 'xgboost_model.pkl')
+    
+    # 加载模型
+    with open(model_path, 'rb') as file:
         model_data = pickle.load(file)
+    
     return model_data
+# def load_model():
+#     with open('xgboost_model.pkl', 'rb') as file:
+#         model_data = pickle.load(file)
+#     return model_data
 
 def fetch_crypto_data(start_date, end_date):
         """
@@ -25,8 +37,7 @@ def fetch_crypto_data(start_date, end_date):
         params = {
             "fsym": "BTC",
             "tsym": "USD",
-            #"limit": days + 30,
-            "limit": 30,
+            "limit": days,
             "toTs": end_ts
         }
         
@@ -46,6 +57,17 @@ def fetch_crypto_data(start_date, end_date):
             'volumefrom': 'Volume'
         })
         
+        # Debugging
+        # print(f"Requested days: {days}, Actual returned rows: {len(df)}")
+        # print(f"Fetched data: {df[['date', 'Close']].head()}")
+
+        # Ensure data length matches the requested range
+        df = df[-days:]  # Only keep the last 'days' rows, if extra data is returned
+        
+        # Fill or align data to match requested date range
+        expected_dates = pd.date_range(start_date, end_date)
+        df = df.set_index('date').reindex(expected_dates, method='nearest').reset_index()
+
         return df
 
 # Predict Bitcoin prices using xgboost model
@@ -102,7 +124,7 @@ def predict_prices(start_date, end_date):
     df = fetch_crypto_data(start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
     actual_price = df['Close']
     mae = mean_absolute_error(future_predictions, actual_price)
-    mape = mean_absolute_percentage_error(future_predictions, actual_price)
+    mape = mean_absolute_percentage_error(future_predictions, actual_price) * 100
 
     # Convert predictions to DataFrame
     pred_df = pd.DataFrame({'Date': date_range, 'Predicted_Price': future_predictions})

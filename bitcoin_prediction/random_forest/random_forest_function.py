@@ -88,7 +88,9 @@ def predict(startDate, endDate):
     runtime = int((time.time() - start_time) * 1000)
     mae = mean_absolute_error(actual_prices['close'][-len(predicted_prices):], predicted_prices)
     mape = mean_absolute_percentage_error(actual_prices['close'][-len(predicted_prices):], predicted_prices) * 100
-    forecast_array = [{"date": date.strftime("%Y-%m-%d"), "price": price} for date, price in zip(predicted_prices.index, predicted_prices)]
+    forecast_array = [{"date": date.strftime("%Y-%m-%d"), "price": round(price, 3)}
+                  for date, price in zip(predicted_prices.index, predicted_prices)]
+    #forecast_array = [{"date": date.strftime("%Y-%m-%d"), "price": price} for date, price in zip(predicted_prices.index, predicted_prices)]
     # Output to console
     print("MAE:", mae)
     print("MAPE:", mape)
