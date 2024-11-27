@@ -282,8 +282,29 @@ def predict_all_models():
 
 @app.route('/predict_plot', methods=['GET'])
 def predict_plot():
-    predict_result = predict_all_models()
-    
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+
+    if not start_date or not end_date:
+        return jsonify({"error": "start_date and end_date are required"}), 400
+
+    try:
+        predict_dictionary, mae_list, runtime_list, mape_list = predict_all_models(start_date, end_date)
+
+        trend_chart_path = bap.plot_trend_chart(predict_dictionary, bap.fetch_actual_prices_with_retry(start_date, end_date))
+        error_bar_chart_path = bap.plot_error_bar_chart(mae_list)
+        runtime_bar_chart_path = bap.plot_runtime_bar_chart(runtime_list)
+        dynamic_error_chart_path = bap.plot_dynamic_error_line_chart(mape_list)
+
+        return jsonify({
+            "trend_chart": trend_chart_path,
+            "error_bar_chart": error_bar_chart_path,
+            "runtime_bar_chart": runtime_bar_chart_path,
+            "dynamic_error_chart": dynamic_error_chart_path
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # Run the Flask app
