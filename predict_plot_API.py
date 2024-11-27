@@ -60,7 +60,7 @@ def predict_model(model_name, start_date, end_date):
         xgb_result = xgb_predict_prices(start_date, end_date)
         xgb_runtime = xgb_result['runtime']
         xgb_pred_list = [
-            {"date": str(row["Date"]), "price": f"{row['Predicted_Price']:.2f}"}
+            {"date": pd.to_datetime(row["Date"]).strftime('%Y-%m-%d'), "price": f"{row['Predicted_Price']:.2f}"}
             for _, row in xgb_result['predictions'].iterrows()
         ]
         xgb_mae = xgb_result['mae']
@@ -97,7 +97,7 @@ def predict_model(model_name, start_date, end_date):
 
         # 格式化预测结果，添加日期信息
         lstm_pred_list = [
-            {"date": str(date), "price": f"{price:.2f}"}
+            {"date": date.strftime('%Y-%m-%d'), "price": f"{price:.2f}"}
             for date, price in zip(prediction_dates, lstm_pred_list_raw)
         ]
 
@@ -135,7 +135,7 @@ def predict_model(model_name, start_date, end_date):
         prophet_mae, prophet_mape, prophet_runtime, prophet_forecast_array = prophet_predict_prices(start_date, end_date)
 
         prophet_pred_list = [
-            {"date": str(item[0]), "price": f"{item[1]:.2f}"}
+            {"date": item[0].strftime('%Y-%m-%d'), "price": f"{item[1]:.2f}"}
             for item in prophet_forecast_array
         ]
 
@@ -299,7 +299,7 @@ def predict_plot():
         trend_chart_path = bap.plot_trend_chart(predict_dictionary, bap.fetch_actual_prices_with_retry(start_date, end_date))
         error_bar_chart_path = bap.plot_error_bar_chart(mae_list)
         runtime_bar_chart_path = bap.plot_runtime_bar_chart(runtime_list)
-        dynamic_error_chart_path = bap.plot_dynamic_error_line_chart(mape_list)
+        dynamic_error_chart_path = bap.plot_mape_bar_chart(mape_list)
 
         return jsonify({
             "results": result_dic,
