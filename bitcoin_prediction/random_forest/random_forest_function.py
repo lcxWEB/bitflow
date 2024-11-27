@@ -101,22 +101,30 @@ def predict(startDate, endDate):
     
 # Main function
 def main():
-    # Load the Random Forest model and scaler
-    rf_model = joblib.load(os.path.join(os.path.dirname(__file__), 'rf_model.pkl'))
-    scaler = joblib.load(os.path.join(os.path.dirname(__file__), 'rf_scaler.pkl'))
+    # Import model 
+    model_file_path = os.path.join(os.path.dirname(__file__), 'rf_model.pkl')
+    if not os.path.exists(model_file_path):
+        raise FileNotFoundError(f"Model file '{model_file_path}' not found. Please ensure the model is trained and saved.")
+    rf_model = joblib.load(model_file_path)
+    # Import Scaler 
+    scaler_file_path = os.path.join(os.path.dirname(__file__), 'rf_scaler.pkl')
+    if not os.path.exists(scaler_file_path):
+        raise FileNotFoundError(f"Scaler file '{scaler_file_path}' not found. Please ensure the scaler is trained and saved.")
+    scaler = joblib.load(scaler_file_path)
 
-    startDate = "2024-10-01"
-    endDate = "2024-10-31"
+    startDate = "2024-10-25"
+    endDate = "2024-11-21"
     actual_prices = get_actual_bitcoin_prices(startDate, endDate)
     # Measure prediction runtime
     start_time = time.time()
-    predicted_prices = predict_bitcoin_prices(rf_model, startDate, endDate)
+    predicted_prices = predict_bitcoin_prices(rf_model,scaler, startDate, endDate)
     runtime = int((time.time() - start_time) * 1000)
     mae = mean_absolute_error(actual_prices['close'][-len(predicted_prices):], predicted_prices)
     mape = mean_absolute_percentage_error(actual_prices['close'][-len(predicted_prices):], predicted_prices) * 100
     plot_prices(actual_prices['close'][-len(predicted_prices):], predicted_prices, runtime, mae, mape)
 
 if __name__ == "__main__":
-    startDate = "2024-10-01"
-    endDate = "2024-10-31"
-    predict(startDate, endDate)
+    main()
+    # startDate = "2024-10-01"
+    # endDate = "2024-10-31"
+    # predict(startDate, endDate)
