@@ -34,7 +34,7 @@ def predict_bitcoin_prices(start_date, end_date):
         """
         start_ts = int(datetime.strptime(start_date, '%Y-%m-%d').timestamp())
         end_ts = int(datetime.strptime(end_date, '%Y-%m-%d').timestamp())
-        days = (end_ts - start_ts) // 86400 + 1
+        days = (end_ts - start_ts) // 86400
         
         url = "https://min-api.cryptocompare.com/data/v2/histoday"
         params = {
