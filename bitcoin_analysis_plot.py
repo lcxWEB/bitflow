@@ -25,9 +25,9 @@ Usage:
 2. Prepare the input data:
     - Predicted prices: Format: {"AlgorithmName": {"YYYY-MM-DD": price, ...}, ...}
     - Start and end dates: Format: "YYYY-MM-DD"
-    - MAE values: Format: {"AlgorithmName": float (3 decimal places, e.g., 12345.678), ...}
-    - Runtime values: Format: {"AlgorithmName": int (milliseconds, e.g., 2300), ...}
-    - MAPE values: Format: {"AlgorithmName": [float (3 decimal places, percentage, e.g., 53.333), ...], ...}
+    - MAE values: Format: {"AlgorithmName": float, ...}
+    - Runtime values: Format: {"AlgorithmName": int, ...}
+    - MAPE values: Format: {"AlgorithmName": [float, ...], ...}
 
 3. Call the plotting functions:
     trend_chart = plot_trend_chart(predict_dict, actual_prices)
