@@ -299,7 +299,7 @@ def predict_plot():
         trend_chart_path = bap.plot_trend_chart(predict_dictionary, bap.fetch_actual_prices_with_retry(start_date, end_date))
         error_bar_chart_path = bap.plot_error_bar_chart(mae_list)
         runtime_bar_chart_path = bap.plot_runtime_bar_chart(runtime_list)
-        dynamic_error_chart_path = bap.plot_mape_bar_chart(mape_list)
+        dynamic_error_chart_path = bap.plot_mape_bar_chart(result_dic)
 
         return jsonify({
             "results": result_dic,
