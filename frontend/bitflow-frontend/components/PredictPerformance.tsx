@@ -193,7 +193,11 @@ const ImageContainer = styled.div`
   margin-bottom: 2rem; /* 增加底部外边距 */
 `;
 
-const PredictPerformance = () => {
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const PredictPerformance: React.FC = () => {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [chart1Src, setChart1Src] = useState<string>('/static/plots/trend_chart.png');
@@ -215,6 +219,7 @@ const PredictPerformance = () => {
     const endTimestamp = Math.floor(endDate.getTime() / 1000);
 
     try {
+      // await sleep(5000);
       const response = await fetch(`http://127.0.0.1:5000/predict_plot?startDate=${startTimestamp}&endDate=${endTimestamp}`, {
         method: 'GET',
         headers: {
@@ -235,6 +240,7 @@ const PredictPerformance = () => {
       setChart4Src(data.MAPEChart.substring(data.MAPEChart.indexOf("/static")));
     } catch (error) {
       console.error('Error fetching data:', error);
+    } finally {
       setIsPredicting(false);
     }
   };
@@ -275,7 +281,9 @@ const PredictPerformance = () => {
                 placeholderText="End date"
               />
             </div>
-            <PredictButton onClick={handlePredict} disabled={isPredicting}>Predict</PredictButton>
+            <PredictButton onClick={handlePredict} disabled={isPredicting}>
+              {isPredicting ? 'Loading...' : 'Predict'}
+            </PredictButton>
           </DatePickerContainer>
 
           <ImageContainer>
