@@ -202,12 +202,14 @@ const PredictPerformance = () => {
   const [chart4Src, setChart4Src] = useState<string>('/static/plots/mape_bar_chart.png');
   const [selectedModel, setSelectedModel] = useState('RandomForest');
   const [data, setData] = useState<any>(null);
+  const [isPredicting, setIsPredicting] = useState(false);
 
   const handlePredict = async () => {
     if (!startDate || !endDate) {
       alert('Please select both start and end dates.');
       return;
     }
+    setIsPredicting(true);
 
     const startTimestamp = Math.floor(startDate.getTime() / 1000);
     const endTimestamp = Math.floor(endDate.getTime() / 1000);
@@ -231,56 +233,11 @@ const PredictPerformance = () => {
       setChart3Src(data.RuntimeChart);
       setChart4Src(data.MAPEChart);
 
-      // // Change port 5050 to 5000
-      // // Change 
-      // const response = await fetch(`http://127.0.0.1:5000/predict?startDate=${startTimestamp}&endDate=${endTimestamp}`, {
-      //     method: 'GET',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //   });
-      //   // if (!response.ok) {
-      //   //   throw new Error('Network response was not ok');
-      //   // }
-
-      //   const result = await response.json();
-      //   // const result =  { "results": { "RandomForest": { "runtime": 2300, "mae": 150.25, "mape": 0.12, "pred_list": [ {"date": "2024-11-01", "price": 35000.75}, {"date": "2024-11-02", "price": 35210.89} ] }, "LSTM": { "runtime": 3200, "mae": 140.55, "mape": 0.10, "pred_list": [ {"date": "2024-11-01", "price": 35100.00}, {"date": "2024-11-02", "price": 35300.89} ] }, "ARIMA": { "runtime": 1800, "mae": 160.75, "mape": 0.13, "pred_list": [ {"date": "2024-11-01", "price": 34980.45}, {"date": "2024-11-02", "price": 35050.00} ] }, "xgBoost": { "runtime": 2500, "mae": 145.50, "mape": 0.11, "pred_list": [ {"date": "2024-11-01", "price": 35220.55}, {"date": "2024-11-02", "price": 35400.33} ] }, "Prophet": { "runtime": 2700, "mae": 135.20, "mape": 0.09, "pred_list": [ {"date": "2024-11-01", "price": 35300.45}, {"date": "2024-11-02", "price": 35500.75} ] } } }
-      //   setData(result.results);
-        
     } catch (error) {
       console.error('Error fetching data:', error);
+      setIsPredicting(false);
     }
   };
-
-//   useEffect(() => {
-//     if (!startDate || !endDate) return;
-
-//     const startTimestamp = startDate.getTime();
-//     const endTimestamp = endDate.getTime();
-
-//     // 在页面加载时调用接口
-//     const fetchData = async () => {
-//       try {
-//         // const response = await fetch(`http://localhost:5050/predict?startDate=${startTimestamp}&endDate=${endTimestamp}`, {
-//         //   method: 'GET',
-//         //   headers: {
-//         //     'Content-Type': 'application/json',
-//         //   },
-//         // });
-//         // if (!response.ok) {
-//         //   throw new Error('Network response was not ok');
-//         // }
-
-//         // const result = await response.json();
-//         const result =  { "results": { "RandomForest": { "runtime": 2300, "mae": 150.25, "mape": 0.12, "pred_list": [ {"date": "2024-11-01", "price": 35000.75}, {"date": "2024-11-02", "price": 35210.89} ] }, "LSTM": { "runtime": 3200, "mae": 140.55, "mape": 0.10, "pred_list": [ {"date": "2024-11-01", "price": 35100.00}, {"date": "2024-11-02", "price": 35300.89} ] }, "ARIMA": { "runtime": 1800, "mae": 160.75, "mape": 0.13, "pred_list": [ {"date": "2024-11-01", "price": 34980.45}, {"date": "2024-11-02", "price": 35050.00} ] }, "xgBoost": { "runtime": 2500, "mae": 145.50, "mape": 0.11, "pred_list": [ {"date": "2024-11-01", "price": 35220.55}, {"date": "2024-11-02", "price": 35400.33} ] }, "Prophet": { "runtime": 2700, "mae": 135.20, "mape": 0.09, "pred_list": [ {"date": "2024-11-01", "price": 35300.45}, {"date": "2024-11-02", "price": 35500.75} ] } } }
-//         setData(result.results);
-//       } catch (error) {
-//         console.error('Error fetching data:', error);
-//       }
-//     };
-
-//     fetchData();
-//   }, [startDate, endDate]); // 当 startDate 或 endDate 改变时重新调用接口
 
   const modelData = data ? data[selectedModel] : null;
   console.log(modelData);
@@ -318,7 +275,7 @@ const PredictPerformance = () => {
                 placeholderText="End date"
               />
             </div>
-            <PredictButton onClick={handlePredict}>Predict</PredictButton>
+            <PredictButton onClick={handlePredict} disabled={isPredicting}>Predict</PredictButton>
           </DatePickerContainer>
 
           <ImageContainer>
