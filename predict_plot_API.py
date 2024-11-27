@@ -3,6 +3,7 @@ import sys
 import pandas as pd
 import os
 import joblib
+import bitcoin_analysis_plot as bap
 
 # 修复 Matplotlib GUI 错误
 import matplotlib
@@ -59,7 +60,7 @@ def predict_model(model_name, start_date, end_date):
         xgb_result = xgb_predict_prices(start_date, end_date)
         xgb_runtime = xgb_result['runtime']
         xgb_pred_list = [
-            {"date": str(row["Date"]), "price": f"{row['Predicted_Price']:.2f}"}
+            {"date": pd.to_datetime(row["Date"]).strftime('%Y-%m-%d'), "price": f"{row['Predicted_Price']:.2f}"}
             for _, row in xgb_result['predictions'].iterrows()
         ]
         xgb_mae = xgb_result['mae']
@@ -96,7 +97,7 @@ def predict_model(model_name, start_date, end_date):
 
         # 格式化预测结果，添加日期信息
         lstm_pred_list = [
-            {"date": str(date), "price": f"{price:.2f}"}
+            {"date": date.strftime('%Y-%m-%d'), "price": f"{price:.2f}"}
             for date, price in zip(prediction_dates, lstm_pred_list_raw)
         ]
 
@@ -134,7 +135,7 @@ def predict_model(model_name, start_date, end_date):
         prophet_mae, prophet_mape, prophet_runtime, prophet_forecast_array = prophet_predict_prices(start_date, end_date)
 
         prophet_pred_list = [
-            {"date": str(item[0]), "price": f"{item[1]:.2f}"}
+            {"date": item[0].strftime('%Y-%m-%d'), "price": f"{item[1]:.2f}"}
             for item in prophet_forecast_array
         ]
 
@@ -170,23 +171,24 @@ def predict_model(model_name, start_date, end_date):
 
 
 # Main prediction function for all models
-def predict_all_models(start_date, end_date):
+def main_predict_all_models(start_date, end_date):
     models = ["XGBoost", "LSTM", "ARIMA", "Prophet", "RandomForest"]
     predict_dictionary = {}
     mae_list = {}
     runtime_list = {}
     mape_list = {}
 
+    result_dic = {}
     for model_name in models:
         result = predict_model(model_name, start_date, end_date)
-
+        result_dic[model_name] = result
         # Extract results for each model
-        predict_dictionary[model_name] = {item["Date"]: item["Predicted_Price"] for item in result["pred_list"]}
+        predict_dictionary[model_name] = {item["date"]: item["price"] for item in result["pred_list"]}
         mae_list[model_name] = result["mae"]
         runtime_list[model_name] = result["runtime"]
         mape_list[model_name] = [result["mape"]]  # Single MAPE value as a list
 
-    return predict_dictionary, mae_list, runtime_list, mape_list
+    return result_dic, predict_dictionary, mae_list, runtime_list, mape_list
 
 # /predict: Return the result of a specific model in dictionary form
 @app.route('/predict', methods=['GET'])
@@ -277,6 +279,39 @@ def predict_all_models():
 
 #     except Exception as e:
 #         return jsonify({"error": str(e)}), 500
+
+
+@app.route('/predict_plot', methods=['GET'])
+def predict_plot():
+    start_date = request.args.get('startDate')
+    end_date = request.args.get('endDate')
+
+    if not start_date or not end_date:
+        return jsonify({"error": "startDate and endDate are required"}), 400
+
+    try:
+        # Ensure valid date format
+        start_date = pd.to_datetime(int(start_date), unit='s').strftime('%Y-%m-%d')
+        end_date = pd.to_datetime(int(end_date), unit='s').strftime('%Y-%m-%d')
+
+        result_dic, predict_dictionary, mae_list, runtime_list, mape_list = main_predict_all_models(start_date, end_date)
+
+        trend_chart_path = bap.plot_trend_chart(predict_dictionary, bap.fetch_actual_prices_with_retry(start_date, end_date))
+        error_bar_chart_path = bap.plot_error_bar_chart(mae_list)
+        runtime_bar_chart_path = bap.plot_runtime_bar_chart(runtime_list)
+        dynamic_error_chart_path = bap.plot_mape_bar_chart(result_dic)
+
+        return jsonify({
+            "results": result_dic,
+            "priceChart": trend_chart_path,
+            "MAEChart": error_bar_chart_path,
+            "RuntimeChart": runtime_bar_chart_path,
+            "MAPEChart": dynamic_error_chart_path
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # Run the Flask app
 if __name__ == '__main__':
