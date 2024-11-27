@@ -282,6 +282,7 @@ def predict_all_models():
 
 
 @app.route('/predict_plot', methods=['GET'])
+@app.route('/predict_plot', methods=['GET'])
 def predict_plot():
     start_date = request.args.get('startDate')
     end_date = request.args.get('endDate')
@@ -294,12 +295,33 @@ def predict_plot():
         start_date = pd.to_datetime(int(start_date), unit='s').strftime('%Y-%m-%d')
         end_date = pd.to_datetime(int(end_date), unit='s').strftime('%Y-%m-%d')
 
+        # Extract results
         result_dic, predict_dictionary, mae_list, runtime_list, mape_list = main_predict_all_models(start_date, end_date)
 
-        trend_chart_path = bap.plot_trend_chart(predict_dictionary, bap.fetch_actual_prices_with_retry(start_date, end_date))
+        # Convert mae_list, runtime_list, and mape_list to the correct format
+        mae_list = {key: float(value) for key, value in mae_list.items()}
+        runtime_list = {key: int(value) for key, value in runtime_list.items()}
+        mape_list = {key: [float(val) for val in value] for key, value in mape_list.items()}
+        
+        # Convert predict_dictionary values to float
+        predict_dictionary = {
+            algo: {date: float(price) for date, price in data.items()}
+            for algo, data in predict_dictionary.items()
+        }
+
+        # Debugging: print converted parameters
+        print("Converted Outputs:")
+        print(f"mae_list: {mae_list}")
+        print(f"runtime_list: {runtime_list}")
+        print(f"mape_list: {mape_list}")
+        print(f"predict_dictionary: {predict_dictionary}")
+
+        # Fetch actual prices and generate charts
+        actual_prices = bap.fetch_actual_prices_with_retry(start_date, end_date)
+        trend_chart_path = bap.plot_trend_chart(predict_dictionary, actual_prices)
         error_bar_chart_path = bap.plot_error_bar_chart(mae_list)
         runtime_bar_chart_path = bap.plot_runtime_bar_chart(runtime_list)
-        dynamic_error_chart_path = bap.plot_mape_bar_chart(result_dic)
+        dynamic_error_chart_path = bap.plot_mape_bar_chart(mape_list)
 
         return jsonify({
             "results": result_dic,
@@ -311,6 +333,7 @@ def predict_plot():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 # Run the Flask app

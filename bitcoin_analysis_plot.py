@@ -148,18 +148,30 @@ def plot_runtime_bar_chart(runtime_list, output_name="runtime_bar_chart.png"):
     logger.info(f"Runtime bar chart saved at {output_path}")
     return output_path
 
-def plot_dynamic_error_line_chart(mape_list, output_name="dynamic_error_chart.png"):
+def plot_mape_bar_chart(mape_list, output_name="mape_bar_chart.png"):
     sns.set(style="whitegrid")
-    plt.figure(figsize=(10, 6))
-    for algo, mape_values in mape_list.items():
-        plt.plot(range(len(mape_values)), mape_values, label=f"{algo}")
+    
+    # Prepare data for the bar chart
+    mape_data = pd.DataFrame.from_dict(mape_list, orient="index", columns=["MAPE"]).reset_index()
+    mape_data.rename(columns={"index": "Algorithm"}, inplace=True)
 
-    plt.xlabel("Time")
+    # Create the bar chart
+    plt.figure(figsize=(10, 6))
+    ax = sns.barplot(x="Algorithm", y="MAPE", data=mape_data, palette="Blues_d")
+
+    # Add labels to bars
+    for p in ax.patches:
+        ax.annotate(f"{p.get_height():.2f}", (p.get_x() + p.get_width() / 2., p.get_height()),
+                    ha="center", va="center", xytext=(0, 8), textcoords="offset points")
+    
+    # Add labels and title
+    plt.title("MAPE Comparison Across Algorithms")
+    plt.xlabel("Algorithm")
     plt.ylabel("Mean Absolute Percentage Error (MAPE)")
-    plt.title("Dynamic Error Line Chart: MAPE Trends")
-    plt.legend()
+    
+    # Save and return the plot path
     output_path = os.path.join(PLOTS_DIR, output_name)
     plt.savefig(output_path)
     plt.close()
-    logger.info(f"Dynamic error line chart saved at {output_path}")
+    logger.info(f"MAPE bar chart saved at {output_path}")
     return output_path
