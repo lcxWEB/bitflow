@@ -196,10 +196,10 @@ const ImageContainer = styled.div`
 const PredictPerformance = () => {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  const [chart1Src, setChart1Src] = useState<string>('/static/plots/price_chart.png');
-  const [chart2Src, setChart2Src] = useState<string>('/static/plots/mae_chart.png');
-  const [chart3Src, setChart3Src] = useState<string>('/static/plots/runtime_chart.png');
-  const [chart4Src, setChart4Src] = useState<string>('/static/plots/mape_chart.png');
+  const [chart1Src, setChart1Src] = useState<string>('/static/plots/trend_chart.png');
+  const [chart2Src, setChart2Src] = useState<string>('/static/plots/error_bar_chart.png');
+  const [chart3Src, setChart3Src] = useState<string>('/static/plots/runtime_bar_chart.png');
+  const [chart4Src, setChart4Src] = useState<string>('/static/plots/mape_bar_chart.png');
   const [selectedModel, setSelectedModel] = useState('RandomForest');
   const [data, setData] = useState<any>(null);
 
@@ -213,7 +213,7 @@ const PredictPerformance = () => {
     const endTimestamp = Math.floor(endDate.getTime() / 1000);
 
     try {
-      const response = await fetch(`http://localhost:5000/predict_plot?startDate=${startTimestamp}&endDate=${endTimestamp}`, {
+      const response = await fetch(`http://127.0.0.1:5000/predict_plot?startDate=${startTimestamp}&endDate=${endTimestamp}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
