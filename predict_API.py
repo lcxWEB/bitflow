@@ -3,6 +3,7 @@ import sys
 import pandas as pd
 import os
 import joblib
+import bitcoin_analysis_plot as bap
 
 # 修复 Matplotlib GUI 错误
 import matplotlib
@@ -277,6 +278,13 @@ def predict_all_models():
 
 #     except Exception as e:
 #         return jsonify({"error": str(e)}), 500
+
+
+@app.route('/predict_plot', methods=['GET'])
+def predict_plot():
+    predict_result = predict_all_models()
+    
+
 
 # Run the Flask app
 if __name__ == '__main__':
