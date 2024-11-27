@@ -209,9 +209,9 @@ const PredictPerformance = () => {
       return;
     }
 
-    const startTimestamp = startDate.getTime();
-    const endTimestamp = endDate.getTime();
-
+    const startTimestamp = Math.floor(startDate.getTime() / 1000);
+    const endTimestamp = Math.floor(endDate.getTime() / 1000);
+    
     try {
     //   const response = await fetch(`http://localhost:5050/predict_plot?startDate=${startTimestamp}&endDate=${endTimestamp}`, {
     //     method: 'GET',
@@ -238,9 +238,9 @@ const PredictPerformance = () => {
             'Content-Type': 'application/json',
           },
         });
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
+        // if (!response.ok) {
+        //   throw new Error('Network response was not ok');
+        // }
 
         const result = await response.json();
         // const result =  { "results": { "RandomForest": { "runtime": 2300, "mae": 150.25, "mape": 0.12, "pred_list": [ {"date": "2024-11-01", "price": 35000.75}, {"date": "2024-11-02", "price": 35210.89} ] }, "LSTM": { "runtime": 3200, "mae": 140.55, "mape": 0.10, "pred_list": [ {"date": "2024-11-01", "price": 35100.00}, {"date": "2024-11-02", "price": 35300.89} ] }, "ARIMA": { "runtime": 1800, "mae": 160.75, "mape": 0.13, "pred_list": [ {"date": "2024-11-01", "price": 34980.45}, {"date": "2024-11-02", "price": 35050.00} ] }, "xgBoost": { "runtime": 2500, "mae": 145.50, "mape": 0.11, "pred_list": [ {"date": "2024-11-01", "price": 35220.55}, {"date": "2024-11-02", "price": 35400.33} ] }, "Prophet": { "runtime": 2700, "mae": 135.20, "mape": 0.09, "pred_list": [ {"date": "2024-11-01", "price": 35300.45}, {"date": "2024-11-02", "price": 35500.75} ] } } }
