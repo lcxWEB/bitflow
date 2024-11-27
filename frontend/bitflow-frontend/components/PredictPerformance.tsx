@@ -238,6 +238,8 @@ const PredictPerformance: React.FC = () => {
       setChart2Src(result.MAEChart.substring(result.MAEChart.indexOf("/static")));
       setChart3Src(result.RuntimeChart.substring(result.RuntimeChart.indexOf("/static")));
       setChart4Src(result.MAPEChart.substring(result.MAPEChart.indexOf("/static")));
+      console.log("charts: ", chart1Src, chart2Src, chart3Src, chart4Src)
+
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {

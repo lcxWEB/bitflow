@@ -46,6 +46,7 @@ import pandas as pd
 import os
 import logging
 import time
+from datetime import datetime
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -112,7 +113,9 @@ def plot_trend_chart(predict_dictionary, actual_prices, output_name="trend_chart
 
     # 调整布局
     plt.tight_layout()
-    
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_name = f"trend_chart_{timestamp}.png"
+    logger.info("trend_chart: ", output_name)
     output_path = os.path.join(PLOTS_DIR, output_name)
     plt.savefig(output_path)
     plt.close()
@@ -131,6 +134,9 @@ def plot_error_bar_chart(mae_list, output_name="error_bar_chart.png"):
     plt.title("Error Bar Chart: MAE Comparison")
     plt.xlabel("Algorithm")
     plt.ylabel("Mean Absolute Error (MAE)")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_name = f"error_bar_chart_{timestamp}.png"
+    logger.info("error_bar_chart: ", output_name)
     output_path = os.path.join(PLOTS_DIR, output_name)
     plt.savefig(output_path)
     plt.close()
@@ -149,6 +155,9 @@ def plot_runtime_bar_chart(runtime_list, output_name="runtime_bar_chart.png"):
     plt.title("Runtime Bar Chart: Algorithm Efficiency")
     plt.xlabel("Algorithm")
     plt.ylabel("Runtime (ms)")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_name = f"runtime_bar_chart_{timestamp}.png"
+    logger.info("runtime_bar_chart: ", output_name)
     output_path = os.path.join(PLOTS_DIR, output_name)
     plt.savefig(output_path)
     plt.close()
@@ -176,6 +185,9 @@ def plot_mape_bar_chart(mape_list, output_name="mape_bar_chart.png"):
     plt.xlabel("Algorithm")
     plt.ylabel("Mean Absolute Percentage Error (MAPE)")
     
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_name = f"mape_bar_chart_{timestamp}.png"
+    logger.info("mape_bar_chart: ", output_name)
     # Save and return the plot path
     output_path = os.path.join(PLOTS_DIR, output_name)
     plt.savefig(output_path)
