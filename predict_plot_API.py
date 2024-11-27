@@ -171,23 +171,24 @@ def predict_model(model_name, start_date, end_date):
 
 
 # Main prediction function for all models
-def predict_all_models(start_date, end_date):
+def main_predict_all_models(start_date, end_date):
     models = ["XGBoost", "LSTM", "ARIMA", "Prophet", "RandomForest"]
     predict_dictionary = {}
     mae_list = {}
     runtime_list = {}
     mape_list = {}
 
+    result_dic = {}
     for model_name in models:
         result = predict_model(model_name, start_date, end_date)
-
+        result_dic[model_name] = result
         # Extract results for each model
-        predict_dictionary[model_name] = {item["Date"]: item["Predicted_Price"] for item in result["pred_list"]}
+        predict_dictionary[model_name] = {item["date"]: item["price"] for item in result["pred_list"]}
         mae_list[model_name] = result["mae"]
         runtime_list[model_name] = result["runtime"]
         mape_list[model_name] = [result["mape"]]  # Single MAPE value as a list
 
-    return predict_dictionary, mae_list, runtime_list, mape_list
+    return result_dic, predict_dictionary, mae_list, runtime_list, mape_list
 
 # /predict: Return the result of a specific model in dictionary form
 @app.route('/predict', methods=['GET'])
@@ -282,14 +283,18 @@ def predict_all_models():
 
 @app.route('/predict_plot', methods=['GET'])
 def predict_plot():
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
+    start_date = request.args.get('startDate')
+    end_date = request.args.get('endDate')
 
     if not start_date or not end_date:
-        return jsonify({"error": "start_date and end_date are required"}), 400
+        return jsonify({"error": "startDate and endDate are required"}), 400
 
     try:
-        predict_dictionary, mae_list, runtime_list, mape_list = predict_all_models(start_date, end_date)
+        # Ensure valid date format
+        start_date = pd.to_datetime(int(start_date), unit='s').strftime('%Y-%m-%d')
+        end_date = pd.to_datetime(int(end_date), unit='s').strftime('%Y-%m-%d')
+
+        result_dic, predict_dictionary, mae_list, runtime_list, mape_list = main_predict_all_models(start_date, end_date)
 
         trend_chart_path = bap.plot_trend_chart(predict_dictionary, bap.fetch_actual_prices_with_retry(start_date, end_date))
         error_bar_chart_path = bap.plot_error_bar_chart(mae_list)
@@ -297,10 +302,11 @@ def predict_plot():
         dynamic_error_chart_path = bap.plot_dynamic_error_line_chart(mape_list)
 
         return jsonify({
-            "trend_chart": trend_chart_path,
-            "error_bar_chart": error_bar_chart_path,
-            "runtime_bar_chart": runtime_bar_chart_path,
-            "dynamic_error_chart": dynamic_error_chart_path
+            "results": result_dic,
+            "priceChart": trend_chart_path,
+            "MAEChart": error_bar_chart_path,
+            "RuntimeChart": runtime_bar_chart_path,
+            "MAPEChart": dynamic_error_chart_path
         })
 
     except Exception as e:
