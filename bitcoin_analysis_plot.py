@@ -106,6 +106,13 @@ def plot_trend_chart(predict_dictionary, actual_prices, output_name="trend_chart
     plt.ylabel("Price")
     plt.title("Trend Line Chart: Predicted vs Actual Prices")
     plt.legend()
+    plt.xticks(rotation=45)
+    #plt.gca().xaxis.set_major_formatter(plt.matplotlib.dates.DateFormatter("%Y-%m-%d"))
+    plt.gcf().autofmt_xdate()  # 自动调整日期标签避免重叠
+
+    # 调整布局
+    plt.tight_layout()
+    
     output_path = os.path.join(PLOTS_DIR, output_name)
     plt.savefig(output_path)
     plt.close()
