@@ -4,6 +4,7 @@ import pandas as pd
 import os
 import joblib
 import bitcoin_analysis_plot as bap
+from flask_cors import CORS
 
 # 修复 Matplotlib GUI 错误
 import matplotlib
@@ -27,6 +28,7 @@ from bitcoin_prediction.random_forest.random_forest_function import predict as r
 
 # Initialize Flask app
 app = Flask(__name__)
+CORS(app)
 
 # Load the xgboost model
 def load_xgboost_model():
