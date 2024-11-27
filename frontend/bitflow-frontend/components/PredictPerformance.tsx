@@ -234,10 +234,10 @@ const PredictPerformance: React.FC = () => {
       const result = await response.json();
       console.log("predic_plot result: ", result);
       setData(result.results);
-      setChart1Src(data.priceChart.substring(data.priceChart.indexOf("/static")));
-      setChart2Src(data.MAEChart.substring(data.MAEChart.indexOf("/static")));
-      setChart3Src(data.RuntimeChart.substring(data.RuntimeChart.indexOf("/static")));
-      setChart4Src(data.MAPEChart.substring(data.MAPEChart.indexOf("/static")));
+      setChart1Src(result.priceChart.substring(result.priceChart.indexOf("/static")));
+      setChart2Src(result.MAEChart.substring(result.MAEChart.indexOf("/static")));
+      setChart3Src(result.RuntimeChart.substring(result.RuntimeChart.indexOf("/static")));
+      setChart4Src(result.MAPEChart.substring(result.MAPEChart.indexOf("/static")));
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
