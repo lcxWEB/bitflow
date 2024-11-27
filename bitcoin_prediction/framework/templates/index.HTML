@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Price Prediction</title>
+    <style>
+        .result-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bitcoin Price Prediction</h1>
+
+    <!-- 日期选择控件 -->
+    <label for="datePicker">Select a Date: </label>
+    <input type="date" id="datePicker" />
+    <button id="predictButton">Predict</button>
+
+    <div class="result-container">
+        <h2>Prediction Result:</h2>
+        <p id="result">Please select a date and click 'Predict' to view the result.</p>
+        <p id="actualPrice" style="display: none;">Actual Closing Price: </p>
+        <p id="predictedPrice" style="display: none;">Predicted Closing Price: </p>
+        <p id="errorPercentage" style="display: none;">Prediction Error Percentage: </p>
+    </div>
+
+    <!-- 按钮显示所有预测结果的图表 -->
+    <button id="showAllPredictionsButton">Show All Predictions</button>
+    <div id="plotAllContainer" style="margin-top: 20px;"></div>
+
+    <script>
+        document.getElementById("predictButton").addEventListener("click", function() {
+            // 获取用户选择的日期
+            const selectedDate = document.getElementById("datePicker").value;
+
+            // 构建 Flask API 请求 URL
+            const apiUrl = `http://127.0.0.1:5000/predict?date=${selectedDate}`;
+
+            // 发起请求并处理返回结果
+            fetch(apiUrl)
+                .then(response => response.json())  // 将返回的 JSON 响应转换为对象
+                .then(data => {
+                    console.log("API Response:", data);  // 输出返回的 JSON 数据进行调试
+
+                    // 检查 data 中是否存在 predicted_close 和 actual_close 字段
+                    if (data.predicted_close !== undefined && data.actual_close !== undefined) {
+                        // 将预测结果显示在页面上
+                        document.getElementById("result").textContent = `Prediction Result for ${data.date}:`;
+                        
+                        // 显示实际收盘价
+                        document.getElementById("actualPrice").textContent = `Actual Closing Price: ${data.actual_close}`;
+                        document.getElementById("actualPrice").style.display = 'block';
+
+                        // 显示预测收盘价
+                        document.getElementById("predictedPrice").textContent = `Predicted Closing Price: ${data.predicted_close}`;
+                        document.getElementById("predictedPrice").style.display = 'block';
+
+                        // 显示预测误差百分比
+                        document.getElementById("errorPercentage").textContent = `Prediction Error Percentage: ${data.error_percentage}%`;
+                        document.getElementById("errorPercentage").style.display = 'block';
+                    } else {
+                        document.getElementById("result").textContent = `Error: ${data.error || 'Unknown error occurred'}`;
+                        document.getElementById("actualPrice").style.display = 'none';
+                        document.getElementById("predictedPrice").style.display = 'none';
+                        document.getElementById("errorPercentage").style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById("result").textContent = `Error: ${error.message}`;
+                    document.getElementById("actualPrice").style.display = 'none';
+                    document.getElementById("predictedPrice").style.display = 'none';
+                    document.getElementById("errorPercentage").style.display = 'none';
+                });
+        });
+
+        // 事件监听器：展示所有日期的预测与实际对比折线图
+        document.getElementById("showAllPredictionsButton").addEventListener("click", function() {
+            const apiUrl = "http://127.0.0.1:5000/plot_all";
+
+            fetch(apiUrl)
+                .then(response => response.text())  // 获取 HTML 格式的响应
+                .then(data => {
+                    document.getElementById("plotAllContainer").innerHTML = data;  // 将图表插入容器中
+                    // 添加提示信息，区分两条线重合的情况
+                    document.getElementById("plotAllContainer").innerHTML += "<p style='font-style: italic; color: gray;'>Note: When the lines overlap, use different colors or markers to make the comparison more visible.</p>";
+                })
+                .catch(error => {
+                    document.getElementById("plotAllContainer").innerHTML = `Error: ${error.message}`;
+                });
+        });
+    </script>
+</body>
+</html>
