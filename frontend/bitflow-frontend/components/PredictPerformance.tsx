@@ -227,12 +227,12 @@ const PredictPerformance = () => {
     //   }
 
       const result = await response.json();
+      console.log("predic_plot result: ", result);
       setData(result.results);
-      setChart1Src(data.priceChart);
-      setChart2Src(data.MAEChart);
-      setChart3Src(data.RuntimeChart);
-      setChart4Src(data.MAPEChart);
-
+      setChart1Src(data.priceChart.substring(data.priceChart.indexOf("/static")));
+      setChart2Src(data.MAEChart.substring(data.MAEChart.indexOf("/static")));
+      setChart3Src(data.RuntimeChart.substring(data.RuntimeChart.indexOf("/static")));
+      setChart4Src(data.MAPEChart.substring(data.MAPEChart.indexOf("/static")));
     } catch (error) {
       console.error('Error fetching data:', error);
       setIsPredicting(false);
