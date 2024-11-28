@@ -3,6 +3,10 @@ import pandas as pd
 import time
 from datetime import datetime
 import os
+from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
+import matplotlib.pyplot as plt
+import requests
+
 
 # Load the ARIMA model
 def load_model():
@@ -60,3 +64,98 @@ def predict_prices(start_date, end_date):
         'runtime': runtime,
         'pred_list': pred_list
     }
+
+# Fetch actual Bitcoin prices from the API
+def fetch_actual_prices(start_date, end_date):
+    url = "https://min-api.cryptocompare.com/data/v2/histoday"
+    params = {
+        "fsym": "BTC",
+        "tsym": "USD",
+        "limit": 2000,
+        "toTs": int(pd.Timestamp(end_date).timestamp()),  # End timestamp
+    }
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        data = response.json()["Data"]["Data"]
+        df = pd.DataFrame(data)
+        df["time"] = pd.to_datetime(df["time"], unit="s")
+        df.set_index("time", inplace=True)
+        return df.loc[start_date:end_date, "close"]
+    else:
+        raise ValueError(f"Failed to fetch data: {response.status_code}")
+
+# Predict and compare prices for 2024-10-25 to 2024-11-21
+def predict_and_compare_future():
+    start_date = '2024-10-25'
+    end_date = '2024-11-21'
+
+    # Fetch actual prices
+    actual_prices = fetch_actual_prices(start_date, end_date)
+
+    # Predict prices using the ARIMA model
+    result = predict_prices(start_date, end_date)
+    predictions = pd.Series(
+        [item[1] for item in result['pred_list']],
+        index=pd.to_datetime([item[0] for item in result['pred_list']])
+    )
+
+    # Calculate metrics
+    mae = mean_absolute_error(actual_prices, predictions)
+    mape = mean_absolute_percentage_error(actual_prices, predictions) * 100
+
+    # Plot comparison
+    plt.figure(figsize=(12, 6))
+    plt.plot(actual_prices.index, actual_prices, label='Actual Prices', color='blue')
+    plt.plot(predictions.index, predictions, label='Predicted Prices', color='red')
+    plt.title(f'Bitcoin Price Prediction (2024-10-25 to 2024-11-21)\nMAE: {mae:.2f}, MAPE: {mape:.2f}%')
+    plt.xlabel('Date')
+    plt.ylabel('Price (USD)')
+    plt.legend()
+    plt.grid()
+    plt.savefig('Future_Price_Comparison.png')
+    plt.show()
+
+    print(f"Future MAE: {mae:.2f}")
+    print(f"Future MAPE: {mape:.2f}%")
+
+# Predict and compare prices for 2022-04 to 2024-10
+def predict_and_compare_historical():
+    start_date = '2022-04-01'
+    end_date = '2024-10-03'
+
+    # Fetch actual prices
+    actual_prices = fetch_actual_prices(start_date, end_date)
+
+    # Predict prices using the ARIMA model
+    result = predict_prices(start_date, end_date)
+    predictions = pd.Series(
+        [item[1] for item in result['pred_list']],
+        index=pd.to_datetime([item[0] for item in result['pred_list']])
+    )
+
+    # Calculate metrics
+    mae = mean_absolute_error(actual_prices, predictions)
+    mape = mean_absolute_percentage_error(actual_prices, predictions) * 100
+
+    # Plot comparison
+    plt.figure(figsize=(12, 6))
+    plt.plot(actual_prices.index, actual_prices, label='Actual Prices', color='blue')
+    plt.plot(predictions.index, predictions, label='Predicted Prices', color='red')
+    plt.title(f'Bitcoin Price Prediction (2022-04 to 2024-10)\nMAE: {mae:.2f}, MAPE: {mape:.2f}%')
+    plt.xlabel('Date')
+    plt.ylabel('Price (USD)')
+    plt.legend()
+    plt.grid()
+    plt.savefig('Historical_Price_Comparison.png')
+    plt.show()
+
+    print(f"Historical MAE: {mae:.2f}")
+    print(f"Historical MAPE: {mape:.2f}%")
+
+# Example usage
+if __name__ == "__main__":
+    # Compare future prices
+    predict_and_compare_future()
+
+    # Compare historical prices
+    predict_and_compare_historical()
