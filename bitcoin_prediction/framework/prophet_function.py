@@ -6,8 +6,9 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 import time
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
 import numpy as np
+import utlis as utlis
 
 def load_data():
     # read the data
@@ -35,8 +36,15 @@ def load_data():
     train_df, test_df = train_test_split(prophet_df, test_size=0.2, shuffle=False)
     return train_df, test_df, df, features
 
+
 def predict(start_date, end_date):
+    last_row = pd.Series({
+        'sentiment_scores': 8.8205,
+        'rolling_mean_7': 2.966253,
+        'rolling_std_7': 5.614631
+    })
     train_df, test_df, df, features = load_data()
+    features = ['sentiment_scores', 'rolling_mean_7', 'rolling_std_7']
     start_time = time.time()
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model_file_path = os.path.join(current_dir, "prophet_model.pkl")
@@ -45,30 +53,11 @@ def predict(start_date, end_date):
         model = joblib.load(model_file_path)
     else:
         raise FileNotFoundError(f"Model file '{model_file_path}' not found. Please ensure the model is trained and saved.")
-    
-    # predict test data
-    future = test_df[['ds', 'sentiment_scores']]
-    forecast = model.predict(future)
 
-    # acual value
-    y_true = test_df['y'].values  
-    # predicted value
-    y_pred = forecast['yhat'].values 
-
-    # compute the mean squared error (MSE)
-    mse = mean_squared_error(y_true, y_pred)
-    # compute the root mean squared error (RMSE)
-    rmse = np.sqrt(mse)
-    # compute the mean absolute error (MAE)
-    mae = mean_absolute_error(y_true, y_pred)
-
-    mask = y_true != 0
-    # compute the mean absolute percentage error (MAPE)
-    mape = np.mean(np.abs((y_true[mask] - y_pred[mask]) / y_true[mask])) * 100
-
-    # print the metrics
-    # print(f'MAE: {mae}')
-    # print(f'MAPE: {mape}')
+    # start_date = pd.to_datetime(start_date)
+    # end_date = pd.to_datetime(end_date)
+    actual_df = utlis.fetch_crypto_data(pd.to_datetime(start_date).strftime('%Y-%m-%d'), pd.to_datetime(end_date).strftime('%Y-%m-%d'))
+    actual_price = actual_df['Close'].values  # Ensure it is a numpy array
 
     future_dates = pd.date_range(start=start_date, end=end_date)
     future_df = pd.DataFrame({'ds': future_dates})
@@ -76,9 +65,13 @@ def predict(start_date, end_date):
     # 为未来日期添加特征值
     # 这里我们使用最后一个已知的值，你可能需要根据实际情况调整这个逻辑
     for feature in features:
-        future_df[feature] = df[feature].iloc[-1]
+        future_df[feature] = last_row[feature]
     # 进行预测
     forecast = model.predict(future_df)
+    predicted_price = forecast['yhat'].values  # Extract predicted values as numpy array
+
+    mae = mean_absolute_error(predicted_price, actual_price)
+    mape = mean_absolute_percentage_error(predicted_price, actual_price) * 100
 
     # read the prediction result
     forecast_filtered = forecast[['ds', 'yhat']]
