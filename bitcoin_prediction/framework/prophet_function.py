@@ -8,6 +8,10 @@ from sklearn.model_selection import train_test_split
 import time
 from sklearn.metrics import mean_absolute_error, mean_absolute_percentage_error
 import numpy as np
+import sys
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+
 import utlis as utlis
 
 def load_data():
@@ -43,7 +47,7 @@ def predict(start_date, end_date):
         'rolling_mean_7': 2.966253,
         'rolling_std_7': 5.614631
     })
-    train_df, test_df, df, features = load_data()
+    # train_df, test_df, df, features = load_data()
     features = ['sentiment_scores', 'rolling_mean_7', 'rolling_std_7']
     start_time = time.time()
     current_dir = os.path.dirname(os.path.abspath(__file__))
