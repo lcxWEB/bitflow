@@ -148,7 +148,7 @@ def predict_bitcoin_prices(start_date, end_date):
         mape = np.mean(np.abs((y_actual - y_pred) / y_actual)) * 100
         
         # Create and save plot
-        os.makedirs('./output', exist_ok=True)
+        # os.makedirs('./output', exist_ok=True)
         plt.figure(figsize=(15, 7))
         plt.plot(df['date'][30:], y_actual, label='Actual Price', color='blue', alpha=0.7)
         plt.plot(df['date'][30:], y_pred, label='Predicted Price', color='red', alpha=0.7)
@@ -159,7 +159,7 @@ def predict_bitcoin_prices(start_date, end_date):
         plt.grid(True)
         plt.xticks(rotation=45)
         plt.tight_layout()
-        plt.savefig('./output/prediction_plot.png')
+        # plt.savefig('./output/prediction_plot.png')
         plt.close()
         
         return {
