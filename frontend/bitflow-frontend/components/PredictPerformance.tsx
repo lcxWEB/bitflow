@@ -114,28 +114,28 @@ const calculateCryptoRating = (mae: number, mape: number): { rating: string, fin
   let maeScore: number;
   let mapeScore: number;
 
-  if (mae <= 100) {
-    maeScore = 100;
-  } else if (mae <= 500) {
-    maeScore = 90 - (mae - 100) * (10 / 400);
-  } else if (mae <= 1000) {
-    maeScore = 80 - (mae - 500) * (10 / 500);
-  } else if (mae <= 2000) {
-    maeScore = 70 - (mae - 1000) * (10 / 1000);
+  if (mae <= 1000) {
+    maeScore = 1000;
   } else if (mae <= 5000) {
-    maeScore = 60 - (mae - 2000) * (20 / 3000);
+    maeScore = 90 - (mae - 1000) * (10 / 4000);
+  } else if (mae <= 10000) {
+    maeScore = 80 - (mae - 5000) * (10 / 5000);
+  } else if (mae <= 15000) {
+    maeScore = 70 - (mae - 10000) * (10 / 10000);
+  } else if (mae <= 20000) {
+    maeScore = 60 - (mae - 15000) * (20 / 15000);
   } else {
-    maeScore = Math.max(0, 40 - (mae - 5000) * (40 / 5000));
+    maeScore = Math.max(0, 40 - (mae - 20000) * (40 / 20000));
   }
 
-  if (mape <= 1) {
+  if (mape <= 3) {
     mapeScore = 100;
-  } else if (mape <= 3) {
-    mapeScore = 90 - (mape - 1) * (10 / 2);
   } else if (mape <= 5) {
-    mapeScore = 80 - (mape - 3) * (10 / 2);
+    mapeScore = 90 - (mape - 3) * (10 / 2);
+  } else if (mape <= 8) {
+    mapeScore = 80 - (mape - 5) * (10 / 3);
   } else if (mape <= 10) {
-    mapeScore = 70 - (mape - 5) * (10 / 5);
+    mapeScore = 70 - (mape - 8) * (10 / 8);
   } else if (mape <= 20) {
     mapeScore = 60 - (mape - 10) * (20 / 10);
   } else {
@@ -173,6 +173,10 @@ const calculateCryptoRating = (mae: number, mape: number): { rating: string, fin
 
   return { rating, finalScore };
 };
+
+console.log(calculateCryptoRating(25000, 35));
+console.log(calculateCryptoRating(3600, 4));
+
 
 const FlexContainer = styled.div`
   background: white;
