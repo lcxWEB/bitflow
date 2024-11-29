@@ -40,24 +40,30 @@ def load_model():
 
 # Predict Bitcoin prices using ARIMA model
 def predict_prices(start_date, end_date):
+    start_time = time.time()
     model_data = load_model()
     model = model_data['model']
-    mae = model_data['mae']
-    mape = model_data['mape']
+    # mae = model_data['mae']
+    # mape = model_data['mape']
 
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
     date_range = pd.date_range(start=start_date, end=end_date, freq='D').to_period('D')
     exogenous_data = pd.DataFrame({'sentiment_scores': [0] * len(date_range)}, index=date_range)
 
-    start_time = time.time()
     forecast_object = model.get_forecast(steps=len(date_range), exog=exogenous_data)
     predictions = forecast_object.predicted_mean # Predicted values
+    # Fetch actual prices
+    actual_prices = fetch_actual_prices(start_date, end_date)
+     # Calculate metrics
+    mae = mean_absolute_error(actual_prices, predictions)
+    mape = mean_absolute_percentage_error(actual_prices, predictions) * 100
+
     end_time = time.time()
     runtime = int((end_time - start_time) * 1000) # milliseconds
 
     pred_list = [(str(date), round(pred, 3)) for date, pred in zip(date_range, predictions)] # List of predictions
-
+    print(f'Predicted prices: {pred_list}, Runtime: {runtime:.0f} milliseconds, MAE: {mae:.2f}, MAPE: {mape:.2f}%')
     return {
         'mae': mae,
         'mape': mape,
@@ -107,14 +113,16 @@ def predict_and_compare_future():
     plt.figure(figsize=(12, 6))
     plt.plot(actual_prices.index, actual_prices, label='Actual Prices', color='blue')
     plt.plot(predictions.index, predictions, label='Predicted Prices', color='red')
-    plt.title(f'Bitcoin Price Prediction (2024-10-25 to 2024-11-21)\nMAE: {mae:.2f}, MAPE: {mape:.2f}%')
+    # plt.title(f'Bitcoin Price Prediction (2024-10-25 to 2024-11-21)\nMAE: {mae:.2f}, MAPE: {mape:.2f}%')
+    plt.title('Bitcoin Price Prediction vs Actual Price')
     plt.xlabel('Date')
     plt.ylabel('Price (USD)')
     plt.legend()
     plt.grid()
     plt.savefig('Future_Price_Comparison.png')
     plt.show()
-
+    # Future MAE: 39480.47
+    # Future MAPE: 49.03%
     print(f"Future MAE: {mae:.2f}")
     print(f"Future MAPE: {mape:.2f}%")
 
@@ -141,7 +149,8 @@ def predict_and_compare_historical():
     plt.figure(figsize=(12, 6))
     plt.plot(actual_prices.index, actual_prices, label='Actual Prices', color='blue')
     plt.plot(predictions.index, predictions, label='Predicted Prices', color='red')
-    plt.title(f'Bitcoin Price Prediction (2022-04 to 2024-10)\nMAE: {mae:.2f}, MAPE: {mape:.2f}%')
+    # plt.title(f'Bitcoin Price Prediction (2022-04 to 2024-10)\nMAE: {mae:.2f}, MAPE: {mape:.2f}%')
+    plt.title('Bitcoin Price Prediction vs Actual Price')
     plt.xlabel('Date')
     plt.ylabel('Price (USD)')
     plt.legend()
@@ -155,7 +164,9 @@ def predict_and_compare_historical():
 # Example usage
 if __name__ == "__main__":
     # Compare future prices
-    predict_and_compare_future()
+    # predict_and_compare_future()
 
     # Compare historical prices
-    predict_and_compare_historical()
+    # predict_and_compare_historical()
+
+    predict_prices('2024-11-22', '2024-11-28')
